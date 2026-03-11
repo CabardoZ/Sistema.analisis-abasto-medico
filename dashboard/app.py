@@ -3,6 +3,7 @@ import pandas as pd
 import sqlite3
 import plotly.express as px
 import plotly.graph_objects as go
+import os 
 
 # ── Configuración de la página ──────────────────
 st.set_page_config(
@@ -42,10 +43,12 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# ── Conexión a la base de datos ─────────────────
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DB_PATH  = os.path.join(BASE_DIR, 'database', 'erillam.db')
+
 @st.cache_data
 def cargar_datos():
-    conn = sqlite3.connect('../database/erillam.db')
+    conn = sqlite3.connect(DB_PATH)
     inventario = pd.read_sql("""
         SELECT i.*, p.descripcion, p.tipo_insumo, p.grupo_terapeutico
         FROM inventario_diario i
@@ -61,10 +64,8 @@ def cargar_datos():
     return inventario, alertas, resumen
 
 inventario, alertas, resumen = cargar_datos()
-
 ultimo_dia = inventario['fecha_corte'].max()
 inv_hoy    = inventario[inventario['fecha_corte'] == ultimo_dia]
-
 # ════════════════════════════════════════════════
 # HEADER + DESCRIPCIÓN DEL PROYECTO
 # ════════════════════════════════════════════════
